@@ -60,7 +60,7 @@
                 if (this.debug) {
                     console.log("golem: Connection established!");
                 }
-                if (this.callbacks["close"]) this.callbacks["open"](evt);
+                if (this.callbacks["open"]) this.callbacks["open"](evt);
             },
             on: function(name, callback) {
                 this.callbacks[name] = callback;
