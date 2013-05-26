@@ -80,31 +80,4 @@
         console.warn("golem: WebSockets not supported!");
 
     }
-
-
-
-    var conn;
-
-
- 
-    function send(name, data) {
-        conn.send(name+' '+data);
-    }
- 
-    if (window["WebSocket"]) {
-        conn = new WebSocket("ws://127.0.0.1:8080/ws");
-        conn.onclose = function(evt) {
-            console.log("Connection closed!");
-        }
-        conn.onmessage = function(evt) {
-            console.log("Received:", evt.data);
-        }
-        conn.onopen = function(evt) {
-            send("join", '{}');
-            send("lobby", '{ "msg": "Hi members of lobby!"}');
-            send("leave", '{}');
-        }
-    } else {
-        console.log("WebSockets not supported!");
-    }
 })(this)
