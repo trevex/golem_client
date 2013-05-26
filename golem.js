@@ -64,7 +64,11 @@
             },
             on: function(name, callback) {
                 this.callbacks[name] = callback;
+            },
+            emit: function(name, data) {
+                this.ws.send(name+" "+JSON.stringify(data));
             }
+
         }
 
         global.golem = {
