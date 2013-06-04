@@ -19,7 +19,22 @@
 (function(global) {
 
     if (global["WebSocket"]) {
-        var seperator = " ";
+        var seperator = " ",
+            DefaultJSONProtocol = {
+                unpack: function(data) {
+                    name = data.split(seperator)[0];
+                    return [name, data.substring(name.length+1, data.length)];
+                },
+                unmarshal: function(data) {
+                    return JSON.parse(data);
+                },
+                marshal: function(data) {
+                    return JSON.stringify(data);
+                },
+                pack: function(name, data) {
+                    return name + seperator + data;
+                }
+            };
 
         function Connection(addr, debug) {
             
@@ -36,6 +51,10 @@
 
         Connection.prototype = {
             constructor: Connection,
+            protocol: DefaultJSONProtocol,
+            setProtocol: function(protocol) {
+                this.protocol = protocol;
+            },
             onClose: function(evt) {
                 if (this.debug) {
                     console.log("golem: Connection closed!");
@@ -43,14 +62,12 @@
                 if (this.callbacks["close"]) this.callbacks["close"](evt);
             },
             onMessage: function(evt) {
-                var data = evt.data,
-                    name = data.split(seperator, 1)[0];
+                var data = this.protocol.unpack(evt.data);
                 if (this.debug) {
                     console.log("golem: Received "+name+"-Event.");
                 }
-                if (this.callbacks[name]) {
-                    var json = data.substring(name.length+1, data.length),
-                        obj  = JSON.parse(json);
+                if (this.callbacks[data[0]]) {
+                    var obj = this.protocol.unmarshal(data[1]);
                     this.callbacks[name](obj);
                 }
             },
@@ -64,7 +81,7 @@
                 this.callbacks[name] = callback;
             },
             emit: function(name, data) {
-                this.ws.send(name+" "+JSON.stringify(data));
+                this.ws.send(this.protocol.pack(name, this.protocol.marshal(data)));
             }
 
         }
