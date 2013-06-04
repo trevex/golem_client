@@ -68,7 +68,7 @@
                 }
                 if (this.callbacks[data[0]]) {
                     var obj = this.protocol.unmarshal(data[1]);
-                    this.callbacks[name](obj);
+                    this.callbacks[data[0]](obj);
                 }
             },
             onOpen: function(evt) {
